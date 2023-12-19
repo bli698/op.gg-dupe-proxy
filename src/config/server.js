@@ -1,18 +1,35 @@
 const express = require('express');
 require('dotenv').config();
+const cors=require('cors');
 
 const app = express();
 const port = 5000;
 
-app.get('/summonerName/:summName', async (req, res) => {
-    const link = `https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${req.params.summName}`
-    const response = await fetch(link, {
+app.use(cors());
+
+
+app.get('/getByRiotID/:ign/:tag', async (req, res) => {
+    const links = {
+        // followed by: /ign/tag
+        'getPuuid': 'https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id',
+        // followed by: /puuid (obtained from getPuuid)
+        'getSummonerInfo': 'https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid'
+    }
+    const headers = {
         headers: {
             'X-Riot-Token': `${process.env.RIOTAPI}`
         }
-    });
-    console.log(await response.json());
-    return res.send();
+    }
+    const response = await fetch(`${links.getPuuid}/${req.params.ign}/${req.params.tag}`, headers);
+    const responseJson = await response.json();
+    // returns if non successful get request
+    if (responseJson.status) {
+        return res.send("Please check the game name and/or tag");
+    }
+
+    const summonerResponse = await fetch(`${links.getSummonerInfo}/${responseJson.puuid}`, headers);
+    const summonerResponseJson = await summonerResponse.json();
+    return res.send(summonerResponseJson);
 })
 
 app.listen(port, () => {
