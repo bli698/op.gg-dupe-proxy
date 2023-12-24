@@ -7,7 +7,6 @@ const port = 5000;
 
 app.use(cors());
 
-
 app.get('/getByRiotID/:ign/:tag', async (req, res) => {
     const links = {
         // followed by: /ign/tag
@@ -31,6 +30,24 @@ app.get('/getByRiotID/:ign/:tag', async (req, res) => {
     const summonerResponseJson = await summonerResponse.json();
     return res.send(summonerResponseJson);
 })
+
+app.get('/getRankWR/:id', async (req, res) => {
+    const links = {
+        // get rank info by encrypted ID
+        'getRankInfo': 'https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner'
+    }
+    const headers = {
+        headers: {
+            'X-Riot-Token': `${process.env.RIOTAPI}`
+        }
+    }
+    const response = await fetch(`${links.getRankInfo}/${req.params.id}`, headers);
+    const responseJson = await response.json();
+
+
+    return res.send(responseJson);
+})
+
 
 app.listen(port, () => {
     console.log(`server is running on port ${port}`);
