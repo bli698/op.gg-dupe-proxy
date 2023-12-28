@@ -48,6 +48,31 @@ app.get('/getRankWR/:id', async (req, res) => {
     return res.send(responseJson);
 })
 
+app.get('/getMatchHistory/:puuid', async (req, res) => {
+    const link = `https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/${req.params.puuid}/ids?start=0&count=20`
+    const headers = {
+        headers: {
+            'X-Riot-Token': `${process.env.RIOTAPI}`
+        }
+    }
+    const response = await fetch(link, headers);
+    const responseJson = await response.json();
+
+    return res.send(responseJson);
+})
+
+app.get('/getMatchTimeline/:matchId', async (req, res) => {
+    const link = `https://americas.api.riotgames.com/lol/match/v5/matches/${req.params.matchId}`
+    const headers = {
+        headers: {
+            'X-Riot-Token': `${process.env.RIOTAPI}`
+        }
+    }
+    const response = await fetch(link, headers);
+    const responseJson = await response.json();
+
+    return res.send(responseJson);
+})
 
 app.listen(port, () => {
     console.log(`server is running on port ${port}`);
